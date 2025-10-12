@@ -1,7 +1,7 @@
 {
   "name": "msi-orquestador",
   "version": "1.0.0",
-  "main": "dist/src/functions/*.js",
+  "main": "src/functions/*.js",
   "repository": "https://github.com/hquispepacaje/msi-orquestador.git",
   "author": "hquispepacaje <h.quispepacaje@uandresbello.edu>",
   "license": "MIT",
