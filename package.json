@@ -1,0 +1,15 @@
+{
+  "name": "msi-orquestador",
+  "version": "1.0.0",
+  "main": "dist/src/functions/*.js",
+  "repository": "https://github.com/hquispepacaje/msi-orquestador.git",
+  "author": "hquispepacaje <h.quispepacaje@uandresbello.edu>",
+  "license": "MIT",
+  "scripts": {
+    "start": "func start",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@azure/functions": "^4.8.0"
+  }
+}
