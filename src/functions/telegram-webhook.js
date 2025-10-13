@@ -1,15 +1,18 @@
 const { app } = require("@azure/functions");
 const axios = require("axios");
-const { OpenAI } = require("openai");
+const { AzureOpenAI } = require("openai");
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN; 
-
 const TELEGRAM_API = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
 
-const openai = new OpenAI({
-    baseURL: `${process.env.AZURE_OPENAI_ENDPOINT}openai/v1/`,
-    apiKey: process.env.AZURE_OPENAI_API_KEY,
-});
+const endpoint = process.env.AZURE_OPENAI_ENDPOINT;
+const modelName = process.env.AZURE_OPENAI_DEPLOYMENT;
+const deployment = process.env.AZURE_OPENAI_DEPLOYMENT;
+const apiKey = process.env.AZURE_OPENAI_API_KEY;
+const apiVersion = process.env.AZURE_OPENAI_API_VERSION;
+
+const options = { endpoint, apiKey, deployment, apiVersion }
+const client = new AzureOpenAI(options);
 
 app.http('telegramWebhook', {
     methods: ['POST'],
@@ -33,14 +36,17 @@ app.http('telegramWebhook', {
         let respuestaBot;
     
          try {
-            const completion = await openai.chat.completions.create({
-                model: process.env.AZURE_OPENAI_DEPLOYMENT,
+            const completion = await client.chat.completions.create({
+                model: modelName,
                 messages: [
                     {"role": "system", "content": "Eres un útil asistente de chatbot para estudiantes. Tus respuestas deben ser concisas y amigables."},
                     {"role": "user", "content": textoUsuario}
                 ],
-                temperature: 0.7,
-                max_tokens: 1000
+                max_completion_tokens: 13107,
+                temperature: 1,
+                top_p: 1,
+                frequency_penalty: 0,
+                presence_penalty: 0,
             });
             
             respuestaBot = completion.choices[0].message.content.trim();
