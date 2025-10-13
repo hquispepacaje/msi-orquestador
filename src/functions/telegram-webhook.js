@@ -90,8 +90,7 @@ app.http('telegramWebhook', {
                 respuestaBot = completion.choices[0].message.content.trim();
             }
         } catch (error) {
-            context.error("Error al llamar a Azure OpenAI:", error.message);
-            respuestaBot = "Lo siento, tuve un problema al conectarme con la IA. Por favor, revisa mi configuración.";
+            respuestaBot = error.message;
         }
 
         try {
