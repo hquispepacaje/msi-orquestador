@@ -1,6 +1,7 @@
 const { app } = require("@azure/functions");
 const axios = require("axios");
 const { AzureOpenAI } = require("openai");
+const { getProductsTool, getProducts } = require('../tools/getProducts'); 
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN; 
 const TELEGRAM_API = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
@@ -13,6 +14,8 @@ const apiVersion = process.env.AZURE_OPENAI_API_VERSION;
 
 const options = { endpoint, apiKey, deployment, apiVersion }
 const client = new AzureOpenAI(options);
+
+const tools = [getProductsTool];
 
 app.http('telegramWebhook', {
     methods: ['POST'],
@@ -34,14 +37,16 @@ app.http('telegramWebhook', {
         const textoUsuario = update.message.text || '';
 
         let respuestaBot;
-    
-         try {
+        const messages = [
+            {"role": "system", "content": "Eres un vendedor de una tienda tecnologica, solo respondes preguntas la tienda. Debes ser gentil y ofrecer recomendaciones de productos segun tu experiencia."},
+            {"role": "user", "content": textoUsuario}
+        ];
+
+        try {
             const completion = await client.chat.completions.create({
                 model: modelName,
-                messages: [
-                    {"role": "system", "content": "Eres un útil asistente de chatbot para estudiantes. Tus respuestas deben ser concisas y amigables."},
-                    {"role": "user", "content": textoUsuario}
-                ],
+                messages,
+                tools: tools,
                 max_completion_tokens: 13107,
                 temperature: 1,
                 top_p: 1,
@@ -49,8 +54,41 @@ app.http('telegramWebhook', {
                 presence_penalty: 0,
             });
             
-            respuestaBot = completion.choices[0].message.content.trim();
-            
+            let responseMessage = completion.choices[0].message;
+
+            if (responseMessage.tool_calls) {
+                const toolCall = responseMessage.tool_calls[0];
+                const toolName = toolCall.function.name;
+ 
+                if (toolName === 'getProductsTool') {
+                    const productsResult = await getProducts();
+                    messages.push(
+                        {
+                            "role": "system",
+                            "content": "De los productos disponibles, sugiere un producto relevante según la conversación y una alternativa, debes explicar porque se eligieron. El producto debe incluir el nombre, su precio y una breve descripción."
+                        }
+                    )
+                    messages.push(responseMessage);
+                    messages.push({
+                        tool_call_id: toolCall.id,
+                        role: "tool",
+                        name: toolName,
+                        content: productsResult,
+                    });
+                    completion = await openai.chat.completions.create({
+                        model: modelName,
+                        messages: messages,
+                        max_completion_tokens: 13107,
+                        temperature: 1,
+                        top_p: 1,
+                        frequency_penalty: 0,
+                        presence_penalty: 0,
+                    });
+                    respuestaBot = completion.choices[0].message.content.trim();
+                }
+            } else {
+                respuestaBot = completion.choices[0].message.content.trim();
+            }
         } catch (error) {
             context.error("Error al llamar a Azure OpenAI:", error.message);
             respuestaBot = "Lo siento, tuve un problema al conectarme con la IA. Por favor, revisa mi configuración.";
