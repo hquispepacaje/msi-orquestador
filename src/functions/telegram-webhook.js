@@ -60,32 +60,7 @@ app.http('telegramWebhook', {
                 const toolCall = responseMessage.tool_calls[0];
                 const toolName = toolCall.function.name;
  
-                if (toolName === 'getProductsTool') {
-                    const productsResult = await getProducts();
-                    messages.push(
-                        {
-                            "role": "system",
-                            "content": "De los productos disponibles, sugiere un producto relevante según la conversación y una alternativa, debes explicar porque se eligieron. El producto debe incluir el nombre, su precio y una breve descripción."
-                        }
-                    )
-                    messages.push(responseMessage);
-                    messages.push({
-                        tool_call_id: toolCall.id,
-                        role: "tool",
-                        name: toolName,
-                        content: productsResult,
-                    });
-                    completion = await openai.chat.completions.create({
-                        model: modelName,
-                        messages: messages,
-                        max_completion_tokens: 13107,
-                        temperature: 1,
-                        top_p: 1,
-                        frequency_penalty: 0,
-                        presence_penalty: 0,
-                    });
-                    respuestaBot = completion.choices[0].message.content.trim();
-                }
+                respuestaBot = toolName;
             } else {
                 respuestaBot = completion.choices[0].message.content.trim();
             }
