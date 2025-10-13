@@ -3,11 +3,12 @@ const axios = require("axios");
 const { OpenAI } = require("openai");
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN; 
+
 const TELEGRAM_API = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
 
 const openai = new OpenAI({
+    baseURL: `${process.env.AZURE_OPENAI_ENDPOINT}openai/v1/`,
     apiKey: process.env.AZURE_OPENAI_API_KEY,
-    baseURL: `${process.env.AZURE_OPENAI_ENDPOINT}openai/deployments/${process.env.AZURE_OPENAI_DEPLOYMENT}`
 });
 
 app.http('telegramWebhook', {
@@ -18,7 +19,7 @@ app.http('telegramWebhook', {
         try {
             update = await request.json();
         } catch (error) {
-            context.log.error("Error al parsear el JSON del Webhook:", error);
+            context.error("Error al parsear el JSON del Webhook:", error);
             return { status: 400, body: "Solicitud inválida" };
         }
 
@@ -45,7 +46,7 @@ app.http('telegramWebhook', {
             respuestaBot = completion.choices[0].message.content.trim();
             
         } catch (error) {
-            context.log.error("Error al llamar a Azure OpenAI:", error.message);
+            context.error("Error al llamar a Azure OpenAI:", error.message);
             respuestaBot = "Lo siento, tuve un problema al conectarme con la IA. Por favor, revisa mi configuración.";
         }
 
@@ -59,7 +60,7 @@ app.http('telegramWebhook', {
             return { status: 200 }; 
             
         } catch (error) {
-            context.log.error("Error al enviar mensaje a Telegram:", error.message);
+            context.error("Error al enviar mensaje a Telegram:", error.message);
             return { status: 500 }; 
         }
     }
