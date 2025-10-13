@@ -1,15 +1,19 @@
 const { app } = require("@azure/functions");
 const axios = require("axios");
+const { OpenAI } = require("openai");
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN; 
 const TELEGRAM_API = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
+
+const openai = new OpenAI({
+    apiKey: process.env.AZURE_OPENAI_API_KEY,
+    baseURL: `${process.env.AZURE_OPENAI_ENDPOINT}openai/deployments/${process.env.AZURE_OPENAI_DEPLOYMENT}`
+});
 
 app.http('telegramWebhook', {
     methods: ['POST'],
     authLevel: 'anonymous',
     handler: async (request, context) => {   
-        context.log('--- Mensaje de Telegram Recibido ---');
-
         let update;
         try {
             update = await request.json();
@@ -18,22 +22,31 @@ app.http('telegramWebhook', {
             return { status: 400, body: "Solicitud inválida" };
         }
 
-        if (!update || !update.message) {
-            return { status: 200, body: "No es un mensaje de chat, ignorando." };
+        if (!update || !update.message || !update.message.text) {
+            return { status: 200, body: "No es un mensaje de chat." };
         }
 
         const chatId = update.message.chat.id;
         const textoUsuario = update.message.text || '';
-        
-        context.log(`Chat ID: ${chatId}, Mensaje: "${textoUsuario}"`);
 
         let respuestaBot;
-        if (textoUsuario.toLowerCase().includes('hola')) {
-            respuestaBot = "¡Hola! Soy tu Azure Function Bot. ¿En qué puedo ayudarte?";
-        } else if (textoUsuario.toLowerCase().includes('adios')) {
-            respuestaBot = "¡Hasta luego! Vuelve pronto.";
-        } else {
-            respuestaBot = `Recibí tu mensaje: "${textoUsuario}". ¡Gracias por escribir!`;
+    
+         try {
+            const completion = await openai.chat.completions.create({
+                model: process.env.AZURE_OPENAI_DEPLOYMENT,
+                messages: [
+                    {"role": "system", "content": "Eres un útil asistente de chatbot para estudiantes. Tus respuestas deben ser concisas y amigables."},
+                    {"role": "user", "content": textoUsuario}
+                ],
+                temperature: 0.7,
+                max_tokens: 1000
+            });
+            
+            respuestaBot = completion.choices[0].message.content.trim();
+            
+        } catch (error) {
+            context.log.error("Error al llamar a Azure OpenAI:", error.message);
+            respuestaBot = "Lo siento, tuve un problema al conectarme con la IA. Por favor, revisa mi configuración.";
         }
 
         try {
