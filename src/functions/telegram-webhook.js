@@ -7,7 +7,6 @@ const TELEGRAM_API = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
 app.http('telegramWebhook', {
     methods: ['POST'],
     authLevel: 'anonymous',
-    route: '',
     handler: async (request, context) => {   
         context.log('--- Mensaje de Telegram Recibido ---');
 
