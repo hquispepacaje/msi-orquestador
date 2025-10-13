@@ -73,7 +73,7 @@ app.http('telegramWebhook', {
                         tool_call_id: toolCall.id,
                         role: "tool",
                         name: toolName,
-                        content: productsResult,
+                        content: JSON.stringify(productsResult),
                     });
                     const secondCompletion = await client.chat.completions.create({
                         model: modelName,
