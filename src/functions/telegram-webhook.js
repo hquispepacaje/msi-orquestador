@@ -75,7 +75,7 @@ app.http('telegramWebhook', {
                         name: toolName,
                         content: productsResult,
                     });
-                    const secondCompletion = await openai.chat.completions.create({
+                    const secondCompletion = await client.chat.completions.create({
                         model: modelName,
                         messages: messages,
                         max_completion_tokens: 13107,
