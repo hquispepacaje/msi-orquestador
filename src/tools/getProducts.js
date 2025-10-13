@@ -7,7 +7,7 @@ const getProducts = async () => {
 const getProductsTool = {
     type: "function",
     function: {
-        name: "getProducts",
+        name: "getProductsTool",
         description: "Útil cuando el usuario pregunta por productos disponibles.",
         parameters: {},
     },
