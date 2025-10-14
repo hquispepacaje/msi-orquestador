@@ -1,10 +1,10 @@
 const axios = require('axios');
-const { getCommerceCredentials } = require('../utils');
+const { commerceCredentials } = require('../utils');
 
-async function getProductsByCategory(categoryId) {
-    const { customerKey, customerSecret, apiUrl } = getCommerceCredentials;
+async function getProductsByCategory(categoryID) {
+    const { customerKey, customerSecret, apiUrl } = commerceCredentials;
 
-    const url = `${apiUrl}/wp-json/wc/v3/products?category=${categoryId}`;
+    const url = `${apiUrl}/wp-json/wc/v3/products?category=${categoryID}`;
 
     try {
         const response = await axios.get(url, {

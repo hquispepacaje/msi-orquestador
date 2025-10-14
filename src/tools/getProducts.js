@@ -3,14 +3,9 @@ const { getCompletion } = require('../utils/clientHelpers');
 const {
     getProductsPrompt,
     getProductsToolDescriptionPrompt,
-    getCategoryNamePrompt,
 } = require('../prompts/getProductsPrompts');
 
-const getProducts = async (categoryName) => {
-    if (categoryName) {
-        // Aquí podrías implementar la lógica para obtener productos por categoría si es necesario
-        // Por ahora, simplemente llamamos a fetchProducts sin filtrar por categoría
-    }
+const getProducts = async () => {
     return await fetchProducts();
 };
 
@@ -19,16 +14,7 @@ const getProductsTool = {
     function: {
         name: "getProductsTool",
         description: getProductsToolDescriptionPrompt,
-        parameters: {
-            type: "object",
-            properties: {
-                categoryName: {
-                    type: "string",
-                    description: getCategoryNamePrompt,
-                },
-            },
-            required: [],
-        },
+        parameters: {},
     },
 };
 
@@ -36,12 +22,10 @@ const getProductsToolImplementation = async (client, messages, responseMessage) 
     const toolCall = responseMessage.tool_calls[0];
     const toolName = toolCall?.function?.name;
     const toolID = toolCall?.id;
-    const toolArgs = JSON.parse(toolCall?.function?.arguments);
-    const categoryName = toolArgs?.categoryName || null;
 
     const _messages = [...messages];
 
-    const productsResult = await getProducts(categoryName);
+    const productsResult = await getProducts();
 
     _messages.push(
         {

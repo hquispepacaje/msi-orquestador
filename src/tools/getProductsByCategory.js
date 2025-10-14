@@ -1,0 +1,82 @@
+const { getProductsByCategory: fetchProductsByCategory } = require('../services/products/getProductsByCategory');
+const { getCompletion } = require('../utils/clientHelpers');
+const {
+    getProductsPrompt,
+    getProductsToolDescriptionPrompt,
+    getCategoryNamePrompt,
+    dontFoundCategoryPrompt,
+} = require('../prompts/getProductsByCategoryPrompts');
+const { getCategories } = require('../services/category/getCategories');
+
+const getProducts = async (categoryID) => {
+    return await fetchProductsByCategory(categoryID);
+};
+
+const getProductsByCategoryTool = {
+    type: "function",
+    function: {
+        name: "getProductsByCategoryTool",
+        description: getProductsToolDescriptionPrompt,
+        parameters: {
+            type: "object",
+            properties: {
+                categoryName: {
+                    type: "string",
+                    description: getCategoryNamePrompt,
+                },
+            },
+            required: ['categoryName'],
+        },
+    },
+};
+
+const getProductsByCategoryToolImplementation = async (client, messages, responseMessage) => {
+    const toolCall = responseMessage.tool_calls[0];
+    const toolName = toolCall?.function?.name;
+    const toolID = toolCall?.id;
+    const toolArgs = JSON.parse(toolCall?.function?.arguments);
+    const categoryName = toolArgs?.categoryName || null;
+
+    const _messages = [...messages];
+
+    const categories = await getCategories();
+
+    const categoryFound = categories.find(category => category.name.toLowerCase() === categoryName.toLowerCase());
+
+    if (categoryFound) {
+        const productsResult = await getProducts(categoryFound.id);
+        _messages.push(
+            {
+                "role": "system",
+                "content": getProductsPrompt,
+            }
+        );
+        _messages.push(responseMessage);
+        _messages.push({
+            tool_call_id: toolID,
+            role: "tool",
+            name: toolName,
+            content: JSON.stringify(productsResult),
+        });
+    } else {
+        _messages.push(
+            {
+                "role": "system",
+                "content": dontFoundCategoryPrompt,
+            }
+        );
+        _messages.push(responseMessage);
+        _messages.push({
+            tool_call_id: toolID,
+            role: "tool",
+            name: toolName,
+            content: JSON.stringify(categories),
+        });
+    }
+
+    const completion = await getCompletion(client, _messages);
+    const respuestaBot = completion.choices[0].message.content.trim();
+    return respuestaBot;
+};
+
+module.exports = { getProductsByCategoryTool, getProductsByCategoryToolImplementation };

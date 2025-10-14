@@ -4,6 +4,7 @@ const { AzureOpenAI } = require('openai');
 const { getProductsTool, getProductsToolImplementation } = require('../tools/getProducts'); 
 const { mainPrompt } = require('../prompts/main');
 const { getCompletionWithTools } = require('../utils/clientHelpers');
+const { getProductsByCategoryToolImplementation, getProductsByCategoryTool } = require('../tools/getProductsByCategory');
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN; 
 const TELEGRAM_API = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
@@ -16,7 +17,7 @@ const apiVersion = process.env.AZURE_OPENAI_API_VERSION;
 const options = { endpoint, apiKey, deployment, apiVersion }
 const client = new AzureOpenAI(options);
 
-const tools = [getProductsTool];
+const tools = [getProductsTool, getProductsByCategoryTool];
 
 app.http('telegramWebhook', {
     methods: ['POST'],
@@ -50,6 +51,9 @@ app.http('telegramWebhook', {
 
             if (responseMessage.tool_calls) {
                 switch (responseMessage.tool_calls[0]?.function?.name) {
+                    case 'getProductsByCategoryTool':
+                        respuestaBot = await getProductsByCategoryToolImplementation(client, messages, responseMessage);
+                        break;
                     case 'getProductsTool':
                         respuestaBot = await getProductsToolImplementation(client, messages, responseMessage);
                         break;

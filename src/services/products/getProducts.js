@@ -1,8 +1,8 @@
 const axios = require('axios');
-const { getCommerceCredentials } = require('../utils');
+const { commerceCredentials } = require('../utils');
 
 async function getProducts() {
-    const { customerKey, customerSecret, apiUrl } = getCommerceCredentials;
+    const { customerKey, customerSecret, apiUrl } = commerceCredentials;
 
     const url = `${apiUrl}/wp-json/wc/v3/products`;
 

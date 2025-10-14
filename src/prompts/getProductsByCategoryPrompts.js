@@ -10,8 +10,14 @@ Cada producto debe ser presentado en el siguiente formato:
 - Imagen: [URL de la imagen del producto]
 `;
 
-const getProductsToolDescriptionPrompt = `Util cuando el usuario muestra interes en conocer y/o pedir recomendaciones sobre los productos de la tienda.
-El cliente debe hacer la consulta de manera general, sin mencionar categorías específicas, pero puede proporcionar información relevante.
+const dontFoundCategoryPrompt = `La categoria que el usuario menciona no existe en la tienda.
+Responde amablemente al usuario que la categoria no fue encontrada y mencinale las categorias que estén dentro del JSON de content que se te entregó en el toolName.
 `;
 
-module.exports = { getProductsPrompt, getProductsToolDescriptionPrompt };
+const getProductsToolDescriptionPrompt = `Util cuando el usuario muestra interes en conocer y/o pedir recomendaciones sobre los productos de la tienda.
+El cliente da información sobre sus preferencias y necesidades. Dentro de esa información, se encuentra el nombre de la categoría que le interesa.
+`;
+
+const getCategoryNamePrompt = `De la informacion proporcionada por el usuario, extrae el nombre de la categoría que el usuario busca.`;
+
+module.exports = { getProductsPrompt, getProductsToolDescriptionPrompt, getCategoryNamePrompt, dontFoundCategoryPrompt };
