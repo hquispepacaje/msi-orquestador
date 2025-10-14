@@ -1,5 +1,5 @@
 const clientProps = {
-    modelName: process.env.AZURE_OPENAI_DEPLOYMENT,
+    model: process.env.AZURE_OPENAI_DEPLOYMENT,
     max_completion_tokens: 13107,
     temperature: 1,
     top_p: 1,
