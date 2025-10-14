@@ -32,7 +32,8 @@ const getProductsTool = {
     },
 };
 
-const getProductsToolImplementation = async (client, messages, toolCall, responseMessage) => {
+const getProductsToolImplementation = async (client, messages, responseMessage) => {
+    const toolCall = responseMessage.tool_calls[0];
     const toolName = toolCall?.function?.name;
     const toolID = toolCall?.id;
     const toolArgs = JSON.parse(toolCall?.function?.arguments);
@@ -57,7 +58,7 @@ const getProductsToolImplementation = async (client, messages, toolCall, respons
     });
 
     const completion = await getCompletion(client, _messages);
-    const respuestaBot = categoryName ? categoryName : completion.choices[0].message.content.trim();
+    const respuestaBot = completion.choices[0].message.content.trim();
     return respuestaBot;
 };
 

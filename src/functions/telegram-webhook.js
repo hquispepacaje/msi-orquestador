@@ -49,11 +49,9 @@ app.http('telegramWebhook', {
             let responseMessage = completion.choices[0].message;
 
             if (responseMessage.tool_calls) {
-                const toolCall = responseMessage.tool_calls[0];
-
-                switch (toolCall?.function?.name) {
+                switch (responseMessage.tool_calls[0]?.function?.name) {
                     case 'getProductsTool':
-                        respuestaBot = await getProductsToolImplementation(client, messages, toolCall, responseMessage);
+                        respuestaBot = await getProductsToolImplementation(client, messages, responseMessage);
                         break;
                     default:
                         break;
