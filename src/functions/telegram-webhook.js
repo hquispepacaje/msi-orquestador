@@ -1,13 +1,14 @@
-const { app } = require("@azure/functions");
-const axios = require("axios");
-const { AzureOpenAI } = require("openai");
-const { getProductsTool, getProducts } = require('../tools/getProducts'); 
+const { app } = require('@azure/functions');
+const axios = require('axios');
+const { AzureOpenAI } = require('openai');
+const { getProductsTool, getProductsToolImplementation } = require('../tools/getProducts'); 
+const { mainPrompt } = require('../prompts/main');
+const { getCompletionWithTools } = require('../utils/clientHelpers');
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN; 
 const TELEGRAM_API = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
 
 const endpoint = process.env.AZURE_OPENAI_ENDPOINT;
-const modelName = process.env.AZURE_OPENAI_DEPLOYMENT;
 const deployment = process.env.AZURE_OPENAI_DEPLOYMENT;
 const apiKey = process.env.AZURE_OPENAI_API_KEY;
 const apiVersion = process.env.AZURE_OPENAI_API_VERSION;
@@ -38,53 +39,24 @@ app.http('telegramWebhook', {
 
         let respuestaBot = 'Lo siento, no entendí tu mensaje.';
         const messages = [
-            {"role": "system", "content": "Eres un vendedor de una tienda tecnologica, solo respondes preguntas la tienda. Debes ser gentil y ofrecer recomendaciones de productos segun tu experiencia."},
+            {"role": "system", "content": mainPrompt},
             {"role": "user", "content": textoUsuario}
         ];
 
         try {
-            const completion = await client.chat.completions.create({
-                model: modelName,
-                messages,
-                tools: tools,
-                max_completion_tokens: 13107,
-                temperature: 1,
-                top_p: 1,
-                frequency_penalty: 0,
-                presence_penalty: 0,
-            });
+            const completion = await getCompletionWithTools(client, messages, tools);
             
             let responseMessage = completion.choices[0].message;
 
             if (responseMessage.tool_calls) {
                 const toolCall = responseMessage.tool_calls[0];
-                const toolName = toolCall.function.name;
- 
-                if (toolName === 'getProductsTool') {
-                    const productsResult = await getProducts();
-                    messages.push(
-                        {
-                            "role": "system",
-                            "content": "De los productos disponibles, sugiere un producto relevante según la conversación y una alternativa, debes explicar porque se eligieron. El producto debe incluir el nombre, su precio y una breve descripción."
-                        }
-                    )
-                    messages.push(responseMessage);
-                    messages.push({
-                        tool_call_id: toolCall.id,
-                        role: "tool",
-                        name: toolName,
-                        content: JSON.stringify(productsResult),
-                    });
-                    const secondCompletion = await client.chat.completions.create({
-                        model: modelName,
-                        messages: messages,
-                        max_completion_tokens: 13107,
-                        temperature: 1,
-                        top_p: 1,
-                        frequency_penalty: 0,
-                        presence_penalty: 0,
-                    });
-                    respuestaBot = secondCompletion.choices[0].message.content.trim();
+
+                switch (toolCall?.function?.name) {
+                    case 'getProductsTool':
+                        respuestaBot = await getProductsToolImplementation(client, messages, toolCall, responseMessage);
+                        break;
+                    default:
+                        break;
                 }
             } else {
                 respuestaBot = completion.choices[0].message.content.trim();
@@ -101,7 +73,6 @@ app.http('telegramWebhook', {
             context.log(`Respuesta enviada a chat ID: ${chatId}`);
 
             return { status: 200 }; 
-            
         } catch (error) {
             context.error("Error al enviar mensaje a Telegram:", error.message);
             return { status: 500 }; 
