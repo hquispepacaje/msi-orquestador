@@ -1,5 +1,4 @@
 const clientProps = {
-    modelName: process.env.AZURE_OPENAI_DEPLOYMENT,
     max_completion_tokens: 13107,
     temperature: 1,
     top_p: 1,
@@ -7,13 +6,15 @@ const clientProps = {
     presence_penalty: 0,
 };
 
-const getCompletionWithTools = (client, messages, tools) => client.chat.completions.create({
+const getCompletionWithTools = (azureProps, messages, tools) => azureProps.client.chat.completions.create({
+    modelName: azureProps?.modelName,
     messages,
     tools,
     ...clientProps,
 });
 
-const getCompletion = (client, messages) => client.chat.completions.create({
+const getCompletion = (azureProps, messages) => azureProps.client.chat.completions.create({
+    modelName: azureProps?.modelName,
     messages,
     ...clientProps,
 });
