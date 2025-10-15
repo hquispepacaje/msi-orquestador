@@ -49,6 +49,7 @@ const saveChatHistory = async (chatID, historyMessages) => {
 
     const chatDocument = {
         _id: chatID,
+        memoryID: chatID,
         history: historyMessages,
         lastUpdated: new Date()
     };
