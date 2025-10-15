@@ -23,27 +23,32 @@ const getProductsToolImplementation = async (client, messages, responseMessage) 
     const toolName = toolCall?.function?.name;
     const toolID = toolCall?.id;
 
-    const _messages = [...messages];
+    const historyMessages = [...messages];
 
     const productsResult = await getProducts();
 
-    _messages.push(
+    historyMessages.push(
         {
             "role": "system",
             "content": getProductsPrompt,
         }
     );
-    _messages.push(responseMessage);
-    _messages.push({
+    historyMessages.push(responseMessage);
+    historyMessages.push({
         tool_call_id: toolID,
         role: "tool",
         name: toolName,
         content: JSON.stringify(productsResult),
     });
 
-    const completion = await getCompletion(client, _messages);
-    const respuestaBot = completion.choices[0].message.content.trim();
-    return respuestaBot;
+    const completion = await getCompletion(client, historyMessages);
+    const responseMessageContent = completion.choices[0].message.content.trim();
+    historyMessages.push({ role: "assistant", content: responseMessageContent });
+
+    return {
+        historyMessages,
+        responseMessageContent,
+    };
 };
 
 module.exports = { getProductsTool, getProductsToolImplementation };

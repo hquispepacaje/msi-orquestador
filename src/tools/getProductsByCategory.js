@@ -37,7 +37,7 @@ const getProductsByCategoryToolImplementation = async (client, messages, respons
     const toolArgs = JSON.parse(toolCall?.function?.arguments);
     const categoryName = toolArgs?.categoryName || null;
 
-    const _messages = [...messages];
+    const historyMessages = [...messages];
 
     const categories = await getCategories();
 
@@ -45,28 +45,28 @@ const getProductsByCategoryToolImplementation = async (client, messages, respons
 
     if (categoryFound) {
         const productsResult = await getProducts(categoryFound.id);
-        _messages.push(
+        historyMessages.push(
             {
                 "role": "system",
                 "content": getProductsPrompt,
             }
         );
-        _messages.push(responseMessage);
-        _messages.push({
+        historyMessages.push(responseMessage);
+        historyMessages.push({
             tool_call_id: toolID,
             role: "tool",
             name: toolName,
             content: JSON.stringify(productsResult),
         });
     } else {
-        _messages.push(
+        historyMessages.push(
             {
                 "role": "system",
                 "content": dontFoundCategoryPrompt,
             }
         );
-        _messages.push(responseMessage);
-        _messages.push({
+        historyMessages.push(responseMessage);
+        historyMessages.push({
             tool_call_id: toolID,
             role: "tool",
             name: toolName,
@@ -74,9 +74,14 @@ const getProductsByCategoryToolImplementation = async (client, messages, respons
         });
     }
 
-    const completion = await getCompletion(client, _messages);
-    const respuestaBot = completion.choices[0].message.content.trim();
-    return respuestaBot;
+    const completion = await getCompletion(client, historyMessages);
+    const responseMessageContent = completion.choices[0].message.content.trim();
+    historyMessages.push({ role: "assistant", content: responseMessageContent });
+
+    return {
+        historyMessages,
+        responseMessageContent,
+    };
 };
 
 module.exports = { getProductsByCategoryTool, getProductsByCategoryToolImplementation };
