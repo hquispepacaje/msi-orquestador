@@ -6,14 +6,29 @@ async function getProducts() {
 
     const url = `${apiUrl}/wp-json/wc/v3/products`;
 
+    let allProducts = [];
+    let page = 1;
+    const perPage = 100;
+
     try {
-        const response = await axios.get(url, {
-            auth: {
-                username: customerKey,
-                password: customerSecret
+        while (true) {
+            const response = await axios.get(url, {
+                auth: {
+                    username: customerKey,
+                    password: customerSecret
+                },
+                params: {
+                    per_page: perPage,
+                    page: page
+                }
+            });
+            if (response.data.length === 0) {
+                break;
             }
-        });
-        const products = response?.data?.map(product => ({
+            allProducts = allProducts.concat(response.data);
+            page++;
+        }
+        const products = allProducts?.map(product => ({
             id: product.id,
             name: product.name,
             description: product.description,

@@ -20,6 +20,9 @@ const getProductsToolDescriptionPrompt = `Util cuando el usuario muestra interes
 El cliente da información sobre sus preferencias y necesidades. Dentro de esa información, se encuentra el nombre de la categoría que le interesa.
 `;
 
-const getCategoryNamePrompt = `De la informacion proporcionada por el usuario, extrae el nombre de la categoría que el usuario busca.`;
+const getCategoryNamePrompt = `De la informacion proporcionada por el usuario, extrae el nombre de la categoría que el usuario busca.
+Las categorias disponibles son: Notebooks, Televisores, Celulares y Otros.
+Deberias hacer match con alguna de esas categorias pero si no hay match, igual extrae el nombre de la categoria que el usuario menciona.
+`;
 
 module.exports = { getProductsPrompt, getProductsToolDescriptionPrompt, getCategoryNamePrompt, dontFoundCategoryPrompt };

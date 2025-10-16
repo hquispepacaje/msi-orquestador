@@ -1,13 +1,9 @@
-const { getProducts: fetchProducts } = require('../services/products/getProducts');
+const { getProducts } = require('../services/products/getProducts');
 const { getCompletion } = require('../utils/clientHelpers');
 const {
     getProductsPrompt,
     getProductsToolDescriptionPrompt,
 } = require('../prompts/getProductsPrompts');
-
-const getProducts = async () => {
-    return await fetchProducts();
-};
 
 const getProductsTool = {
     type: "function",

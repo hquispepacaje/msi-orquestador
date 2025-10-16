@@ -4,6 +4,7 @@ const { mainPrompt } = require('../prompts/main');
 const { getCompletionWithTools } = require('../utils/clientHelpers');
 const { getProductsByCategoryToolImplementation, getProductsByCategoryTool } = require('../tools/getProductsByCategory');
 const { saveChatHistory, loadChatHistory } = require('../services/memory/memory');
+const { getProductTool, getProductToolImplementation } = require('../tools/getProduct');
 
 const endpoint = process.env.AZURE_OPENAI_ENDPOINT;
 const deployment = process.env.AZURE_OPENAI_DEPLOYMENT;
@@ -13,7 +14,11 @@ const apiVersion = process.env.AZURE_OPENAI_API_VERSION;
 const options = { endpoint, apiKey, deployment, apiVersion }
 const client = new AzureOpenAI(options);
 
-const tools = [getProductsTool, getProductsByCategoryTool];
+const tools = [
+    getProductsTool,
+    getProductsByCategoryTool,
+    getProductTool,
+];
 
 const getAgentResponse = async (userText, chatID) => {
     let botResponse = {
@@ -39,6 +44,9 @@ const getAgentResponse = async (userText, chatID) => {
                     break;
                 case 'getProductsTool':
                     botResponse = await getProductsToolImplementation(client, messages, responseMessage);
+                    break;
+                case 'getProductTool':
+                    botResponse = await getProductToolImplementation(client, messages, responseMessage);
                     break;
                 default:
                     break;

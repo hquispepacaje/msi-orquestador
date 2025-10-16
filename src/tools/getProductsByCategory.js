@@ -1,4 +1,4 @@
-const { getProductsByCategory: fetchProductsByCategory } = require('../services/products/getProductsByCategory');
+const { getProductsByCategory } = require('../services/products/getProductsByCategory');
 const { getCompletion } = require('../utils/clientHelpers');
 const {
     getProductsPrompt,
@@ -7,10 +7,6 @@ const {
     dontFoundCategoryPrompt,
 } = require('../prompts/getProductsByCategoryPrompts');
 const { getCategories } = require('../services/category/getCategories');
-
-const getProducts = async (categoryID) => {
-    return await fetchProductsByCategory(categoryID);
-};
 
 const getProductsByCategoryTool = {
     type: "function",
@@ -44,7 +40,7 @@ const getProductsByCategoryToolImplementation = async (client, messages, respons
     const categoryFound = categories.find(category => category.name.toLowerCase() === categoryName.toLowerCase());
 
     if (categoryFound) {
-        const productsResult = await getProducts(categoryFound.id);
+        const productsResult = await getProductsByCategory(categoryFound.id);
         historyMessages.push(
             {
                 "role": "system",
