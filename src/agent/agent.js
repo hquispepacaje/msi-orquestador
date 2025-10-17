@@ -5,6 +5,9 @@ const { getCompletionWithTools } = require('../utils/clientHelpers');
 const { getProductsByCategoryToolImplementation, getProductsByCategoryTool } = require('../tools/getProductsByCategory');
 const { saveChatHistory, loadChatHistory } = require('../services/memory/memory');
 const { getProductTool, getProductToolImplementation } = require('../tools/getProduct');
+const { getCartToolImplementation } = require('../tools/getCart');
+const { clearCartToolImplementation } = require('../tools/clearCart');
+const { addCartItemToolImplementation } = require('../tools/addCartItem');
 
 const endpoint = process.env.AZURE_OPENAI_ENDPOINT;
 const deployment = process.env.AZURE_OPENAI_DEPLOYMENT;
@@ -47,6 +50,15 @@ const getAgentResponse = async (userText, chatID) => {
                     break;
                 case 'getProductTool':
                     botResponse = await getProductToolImplementation(client, messages, responseMessage);
+                    break;
+                case 'getCartTool':
+                    botResponse = await getCartToolImplementation(client, messages, responseMessage);
+                    break;
+                case 'clearCartTool':
+                    botResponse = await clearCartToolImplementation(client, messages, responseMessage);
+                    break;
+                case 'addCartItemTool':
+                    botResponse = await addCartItemToolImplementation(client, messages, responseMessage);
                     break;
                 default:
                     break;
