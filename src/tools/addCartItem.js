@@ -7,6 +7,7 @@ const {
 } = require('../prompts/addCartItemPrompts');
 const { addCartItem } = require('../services/cart/addCartItem');
 const { getCartToken, saveCartToken } = require('../services/cart/cartToken');
+const { getCart } = require('../services/cart/getCart');
 
 const addCartItemTool = {
     type: "function",
@@ -40,8 +41,12 @@ const addCartItemToolImplementation = async (client, messages, responseMessage, 
 
     const historyMessages = [...messages];
 
-    const cartToken = await getCartToken(chatID); 
-    const {cart, newCartToken} = await addCartItem(cartToken ?? '', productID, quantity);
+    let cartToken = await getCartToken(chatID); 
+    if (!cartToken) {
+        const { newCartToken: _cartToken } = await getCart('');
+        cartToken = _cartToken;
+    }
+    const {cart, newCartToken} = await addCartItem(cartToken, productID, quantity);
 
     historyMessages.push(
         {

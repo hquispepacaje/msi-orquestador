@@ -1,5 +1,4 @@
 const { AzureOpenAI } = require('openai');
-const { getProductsTool, getProductsToolImplementation } = require('../tools/getProducts'); 
 const { mainPrompt } = require('../prompts/main');
 const { getCompletionWithTools } = require('../utils/clientHelpers');
 const { getProductsByCategoryToolImplementation, getProductsByCategoryTool } = require('../tools/getProductsByCategory');
