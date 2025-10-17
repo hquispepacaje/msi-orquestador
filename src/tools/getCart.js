@@ -25,13 +25,13 @@ const getCartToolImplementation = async (client, messages, responseMessage, chat
 
     const cartToken = await getCartToken(chatID); 
     if (!cartToken) {
-        historyMessages.push(
-            {
-                "role": "system",
-                "content": cartDontFoundPrompt,
-            }
-        );
         historyMessages.push(responseMessage);
+        historyMessages.push({
+            tool_call_id: toolID,
+            role: "tool",
+            name: toolName,
+            content: cartDontFoundPrompt,
+        });
         const completion = await getCompletion(client, historyMessages);
         const responseMessageContent = completion.choices[0].message.content.trim();
 
@@ -52,6 +52,12 @@ const getCartToolImplementation = async (client, messages, responseMessage, chat
         }
     );
     historyMessages.push(responseMessage);
+    historyMessages.push({
+        tool_call_id: toolID,
+        role: "tool",
+        name: toolName,
+        content: JSON.stringify(cart),
+    });
 
     const completion = await getCompletion(client, historyMessages);
     const responseMessageContent = completion.choices[0].message.content.trim();
