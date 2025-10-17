@@ -2,14 +2,14 @@ const getCartPrompt = `Se te proporcionará la información del carrito en forma
 1) Informar al usuario en español que el producto ha sido agregado exitosamente al carrito.
 2) Proporcionar un resumen del carrito usando exactamente el siguiente formato de objeto JSON (sin explicaciones adicionales ni texto extra):
 itemCount,
-items: cartData.items.map(item => ({
+items: [{
     key,
     id,
     name,
     quantity,
     price,
     lineTotal
-})),
+}],
 totals: {
     totalPrice,
     currencyCode,

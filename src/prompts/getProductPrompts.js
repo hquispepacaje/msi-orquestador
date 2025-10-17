@@ -16,6 +16,8 @@ Reglas:
 - Si no hay un id claro, NO llames a la herramienta. En su lugar, solicita de forma breve y amable que el usuario proporcione el id, el nombre exacto, enlace o una foto del producto.
 - Si la información es parcial, pide datos que ayuden a identificar el producto: marca, modelo, color, características distintivas o rango de precio.
 
+En caso de no encontrar el id, revisa el historial de mensajes para hacer match con el producto que el cliente haya mostrado interes y obtener su [id].
+
 Formato de interacción: pregunta brevemente para obtener el dato faltante o procede a invocar la herramienta únicamente cuando el [id] esté disponible. Mantén el tono amable y enfocado en ayudar al usuario a encontrar el producto.`;
 
 const getProductIDPrompt = `De la informacion proporcionada por el usuario y del historial de mensajes detecta cual es el producto que quiere y extrae su [id].`;
