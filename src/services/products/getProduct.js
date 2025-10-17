@@ -1,5 +1,5 @@
 const axios = require('axios');
-const { commerceCredentials } = require('../utils'); // Asumo que esto sigue igual
+const { commerceCredentials } = require('../utils');
 
 async function getProduct(productID) {
     if (!productID) {
