@@ -17,7 +17,7 @@ totals: {
 }
 Usa únicamente los valores presentes en json y no inventes datos. Si falta información necesaria, formula una pregunta breve al usuario.`;
 
-const addCartItemToolDescriptionPrompt = `Util el usuario que quiere agregar un producto al carrito.
+const addCartItemToolDescriptionPrompt = `Usa este tool cuando el usuario que quiere agregar un producto al carrito.
 Debes extraer el [id] del producto y la [cantidad] que desea agregar, la cantidad es opcional y por defecto es 1.
 Debe haber preguntado por un producto en especifico o haber mostrado interes en uno previamente, ya que se necesita el [id] del producto.
 `;

@@ -2,8 +2,8 @@ const axios = require('axios');
 const { commerceCredentials } = require('../utils');
 
 async function addCartItem(cartToken, productId, quantity = 1) {
-    if (!cartToken || !productId) {
-        throw new Error("Se requiere un 'cart-token' y un 'productId' para agregar un item.");
+    if (!productId) {
+        throw new Error("Se requiere un 'productId' para agregar un item.");
     }
 
     const { apiUrl } = commerceCredentials;

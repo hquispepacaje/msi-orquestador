@@ -5,9 +5,9 @@ const { getCompletionWithTools } = require('../utils/clientHelpers');
 const { getProductsByCategoryToolImplementation, getProductsByCategoryTool } = require('../tools/getProductsByCategory');
 const { saveChatHistory, loadChatHistory } = require('../services/memory/memory');
 const { getProductTool, getProductToolImplementation } = require('../tools/getProduct');
-const { getCartToolImplementation } = require('../tools/getCart');
-const { clearCartToolImplementation } = require('../tools/clearCart');
-const { addCartItemToolImplementation } = require('../tools/addCartItem');
+const { getCartToolImplementation, getCartTool } = require('../tools/getCart');
+const { clearCartToolImplementation, clearCartTool } = require('../tools/clearCart');
+const { addCartItemToolImplementation, addCartItemTool } = require('../tools/addCartItem');
 
 const endpoint = process.env.AZURE_OPENAI_ENDPOINT;
 const deployment = process.env.AZURE_OPENAI_DEPLOYMENT;
@@ -18,9 +18,11 @@ const options = { endpoint, apiKey, deployment, apiVersion }
 const client = new AzureOpenAI(options);
 
 const tools = [
-    getProductsTool,
     getProductsByCategoryTool,
     getProductTool,
+    getCartTool,
+    clearCartTool,
+    addCartItemTool
 ];
 
 const getAgentResponse = async (userText, chatID) => {
@@ -45,20 +47,17 @@ const getAgentResponse = async (userText, chatID) => {
                 case 'getProductsByCategoryTool':
                     botResponse = await getProductsByCategoryToolImplementation(client, messages, responseMessage);
                     break;
-                case 'getProductsTool':
-                    botResponse = await getProductsToolImplementation(client, messages, responseMessage);
-                    break;
                 case 'getProductTool':
                     botResponse = await getProductToolImplementation(client, messages, responseMessage);
                     break;
                 case 'getCartTool':
-                    botResponse = await getCartToolImplementation(client, messages, responseMessage);
+                    botResponse = await getCartToolImplementation(client, messages, responseMessage, chatID);
                     break;
                 case 'clearCartTool':
-                    botResponse = await clearCartToolImplementation(client, messages, responseMessage);
+                    botResponse = await clearCartToolImplementation(client, messages, responseMessage, chatID);
                     break;
                 case 'addCartItemTool':
-                    botResponse = await addCartItemToolImplementation(client, messages, responseMessage);
+                    botResponse = await addCartItemToolImplementation(client, messages, responseMessage, chatID);
                     break;
                 default:
                     break;

@@ -20,6 +20,6 @@ Usa únicamente los valores presentes en json y no inventes datos. Si falta info
 const cartDontFoundPrompt = `Expresale al usuario que no se encontró un carrito existente.
 Lo invitamos a agregar productos a su carrito en cualquier momento y recordarle que estamos a su disposicion para cualquier consulta.`;
 
-const getCartToolDescriptionPrompt = `Util el usuario que quiere saber sobre el su carrito, incluyendo los productos que contiene y su estado actual.`;
+const getCartToolDescriptionPrompt = `Usa este tool cuando el usuario quiera saber sobre su carrito, incluyendo los productos que contiene y su estado actual.`;
 
 module.exports = { getCartPrompt, cartDontFoundPrompt, getCartToolDescriptionPrompt };
