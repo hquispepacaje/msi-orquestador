@@ -32,11 +32,6 @@ const getCartToolImplementation = async (client, messages, responseMessage, chat
             }
         );
         historyMessages.push(responseMessage);
-        historyMessages.push({
-            tool_call_id: toolID,
-            role: "tool",
-            name: toolName,
-        });
         const completion = await getCompletion(client, historyMessages);
         const responseMessageContent = completion.choices[0].message.content.trim();
 
@@ -57,12 +52,6 @@ const getCartToolImplementation = async (client, messages, responseMessage, chat
         }
     );
     historyMessages.push(responseMessage);
-    historyMessages.push({
-        tool_call_id: toolID,
-        role: "tool",
-        name: toolName,
-        content: JSON.stringify(cart),
-    });
 
     const completion = await getCompletion(client, historyMessages);
     const responseMessageContent = completion.choices[0].message.content.trim();

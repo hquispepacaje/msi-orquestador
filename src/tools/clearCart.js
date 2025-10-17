@@ -32,11 +32,7 @@ const clearCartToolImplementation = async (client, messages, responseMessage, ch
             }
         );
         historyMessages.push(responseMessage);
-        historyMessages.push({
-            tool_call_id: toolID,
-            role: "tool",
-            name: toolName,
-        });
+
         const completion = await getCompletion(client, historyMessages);
         const responseMessageContent = completion.choices[0].message.content.trim();
 
@@ -57,11 +53,6 @@ const clearCartToolImplementation = async (client, messages, responseMessage, ch
         }
     );
     historyMessages.push(responseMessage);
-    historyMessages.push({
-        tool_call_id: toolID,
-        role: "tool",
-        name: toolName,
-    });
 
     const completion = await getCompletion(client, historyMessages);
     const responseMessageContent = completion.choices[0].message.content.trim();
