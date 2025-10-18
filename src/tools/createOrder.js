@@ -1,22 +1,19 @@
 const { getCompletion } = require('../utils/clientHelpers');
-const {
-    getCartPrompt,
-    cartDontFoundPrompt,
-    getCartToolDescriptionPrompt,
-} = require('../prompts/getCartPrompts');
-const { getCart } = require('../services/cart/getCart');
-const { getCartToken, saveCartToken } = require('../services/cart/cartToken');
+const { getCartToken } = require('../services/cart/cartToken');
+const { getClientAddress } = require('../services/checkout/clientAddress');
+const { createOrder } = require('../services/order/createOrder');
+const { createOrderToolDescriptionPrompt, billingAddressDontFoundPrompt, createOrderToolPrompt, cartDontFoundPrompt } = require('../prompts/createOrderPrompt');
 
-const getCartTool = {
+const createOrderTool = {
     type: "function",
     function: {
-        name: "getCartTool",
-        description: getCartToolDescriptionPrompt,
+        name: "createOrderTool",
+        description: createOrderToolDescriptionPrompt,
         parameters: {},
     },
 };
 
-const getCartToolImplementation = async (client, messages, responseMessage, chatID) => {
+const createOrderToolImplementation = async (client, messages, responseMessage, chatID) => {
     const toolCall = responseMessage.tool_calls[0];
     const toolName = toolCall?.function?.name;
     const toolID = toolCall?.id;
@@ -43,12 +40,33 @@ const getCartToolImplementation = async (client, messages, responseMessage, chat
         };
     }
 
-    const {cart, newCartToken} = await getCart(cartToken);
+    const billingAddress = await getClientAddress(chatID); 
+
+    if (!billingAddress) {
+        historyMessages.push(responseMessage);
+        historyMessages.push({
+            tool_call_id: toolID,
+            role: "tool",
+            name: toolName,
+            content: billingAddressDontFoundPrompt,
+        });
+        const completion = await getCompletion(client, historyMessages);
+        const responseMessageContent = completion.choices[0].message.content.trim();
+
+        historyMessages.push({ role: "assistant", content: responseMessageContent });
+
+        return {
+            historyMessages,
+            responseMessageContent,
+        };
+    }
+
+    const order = await createOrder(cartToken, billingAddress);
 
     historyMessages.push(
         {
             "role": "system",
-            "content": getCartPrompt,
+            "content": createOrderToolPrompt,
         }
     );
     historyMessages.push(responseMessage);
@@ -56,19 +74,17 @@ const getCartToolImplementation = async (client, messages, responseMessage, chat
         tool_call_id: toolID,
         role: "tool",
         name: toolName,
-        content: JSON.stringify(cart),
+        content: JSON.stringify({ paymentUrl: order.paymentUrl }),
     });
 
     const completion = await getCompletion(client, historyMessages);
     const responseMessageContent = completion.choices[0].message.content.trim();
     historyMessages.push({ role: "assistant", content: responseMessageContent });
     
-    await saveCartToken(chatID, newCartToken);
-
     return {
         historyMessages,
         responseMessageContent,
     };
 };
 
-module.exports = { getCartTool, getCartToolImplementation };
+module.exports = { createOrderTool, createOrderToolImplementation };

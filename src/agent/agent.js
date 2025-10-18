@@ -7,6 +7,8 @@ const { getProductTool, getProductToolImplementation } = require('../tools/getPr
 const { getCartToolImplementation, getCartTool } = require('../tools/getCart');
 const { clearCartToolImplementation, clearCartTool } = require('../tools/clearCart');
 const { addCartItemToolImplementation, addCartItemTool } = require('../tools/addCartItem');
+const { addAddressDataToolImplementation, addAddressDataTool } = require('../tools/addAddressData');
+const { createOrderToolImplementation, createOrderTool } = require('../tools/createOrder');
 
 const endpoint = process.env.AZURE_OPENAI_ENDPOINT;
 const deployment = process.env.AZURE_OPENAI_DEPLOYMENT;
@@ -21,7 +23,9 @@ const tools = [
     getProductTool,
     getCartTool,
     clearCartTool,
-    addCartItemTool
+    addCartItemTool,
+    addAddressDataTool,
+    createOrderTool,
 ];
 
 const getAgentResponse = async (userText, chatID) => {
@@ -57,6 +61,12 @@ const getAgentResponse = async (userText, chatID) => {
                     break;
                 case 'addCartItemTool':
                     botResponse = await addCartItemToolImplementation(client, messages, responseMessage, chatID);
+                    break;
+                case 'addAddressDataTool':
+                    botResponse = await addAddressDataToolImplementation(client, messages, responseMessage, chatID);
+                    break;
+                case 'createOrderTool':
+                    botResponse = await createOrderToolImplementation(client, messages, responseMessage, chatID);
                     break;
                 default:
                     break;
