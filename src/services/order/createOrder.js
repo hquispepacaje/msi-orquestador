@@ -5,7 +5,7 @@ async function createOrder(cartToken, clientAddressData) {
     if (!cartToken) {
         throw new Error("Se requiere un 'cartToken' para proceder con el checkout.");
     }
-    if (!checkoutData) {
+    if (!clientAddressData) {
         throw new Error("Se requiere la información de checkout.");
     }
 
