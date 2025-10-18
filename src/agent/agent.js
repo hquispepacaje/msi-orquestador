@@ -82,7 +82,7 @@ const getAgentResponse = async (userText, chatID) => {
         await saveChatHistory(chatID, botResponse.historyMessages);
         return botResponse.responseMessageContent;
     } catch (error) {
-        return error.message;
+        return 'Parece que no logré entender. ¿Me la podrías decir de nuevo? Estoy aquí para ayudarte.';
     }
 };
 
